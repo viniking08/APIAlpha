@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
-const PORT = 3033;
+
+const dotenv = require("dotenv");
+dotenv.config();
+const PORT = process.env.API_PORT;
 
 const produtosRoutes = require("./routes/produtosRoute");
 const clientesRoutes = require("./routes/clientesRoute");

@@ -1,13 +1,14 @@
-const produtos = require("../models/produtosModel");
+const produtosModel = require("../models/produtosModel");
 
-const listarProdutos = (req, res) => {
+const listarProdutos = async (req, res) => {
+    const produtos = await produtosModel.buscarTodos();
+
     res.json(produtos);
 };
 
-const buscarProduto = (req, res) => {
+const buscarProduto = async (req, res) => {
     const id = req.params.id;
-
-    const produto = produtos.find(produto => produto.id == id);
+    const produto = await produtosModel.buscarPorId(id);
 
     if (!produto) {
         return res.status(404).json({
@@ -18,23 +19,17 @@ const buscarProduto = (req, res) => {
     res.json(produto);
 };
 
-const cadastrarProduto = (req, res) => {
-    const novoProduto = {
-        id: produtos.length + 1,
-        nome: req.body.nome,
-        marca: req.body.marca,
-        preco: req.body.preco
-    };
-
-    produtos.push(novoProduto);
+const cadastrarProduto = async (req, res) => {
+    const {nome, marca, preco} = req.body;
+    const novoProduto = await produtosModel.criar(nome, marca, preco);
 
     res.status(201).json(novoProduto);
 };
 
-const editarProdutos = (req, res) => {
+const editarProdutos = async (req, res) => {
     const id = req.params.id;
-
-    const produto = produtos.find(produto => produto.id == id);
+    const {nome, marca, preco} = req.body;
+    const produto = await produtosModel.buscarPorId(id);
 
     if (!produto) {
         return res.status(404).json({
@@ -42,25 +37,22 @@ const editarProdutos = (req, res) => {
         });
     }
 
-    produto.nome = req.body.nome;
-    produto.marca = req.body.marca;
-    produto.preco = req.body.preco;
+    const produtoAtualizado = await produtosModel.editar(id, nome, marca, preco);
 
-    res.json(produto);
+    res.json(produtoAtualizado);
 };
 
-const excluirProdutos = (req, res) => {
+const excluirProdutos = async (req, res) => {
     const id = req.params.id;
+    const produto = await produtosModel.buscarPorId(id);
 
-    const produtoIndex = produtos.findIndex(produto => produto.id == id);
-
-    if (produtoIndex === -1) {
+    if (!produto) {
         return res.status(404).json({
             mensagem: "Produto não encontrado"
         });
     }
 
-    produtos.splice(produtoIndex, 1);
+    await produtosModel.excluir(id);
 
     res.json({
         mensagem: "Produto deletado com sucesso"
