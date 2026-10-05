@@ -52,6 +52,7 @@ const excluir = async (id) => {
     return resultado.affectedRows;
 }
 
+
 module.exports = {
     buscarTodos,
     buscarPorId,
